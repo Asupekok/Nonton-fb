@@ -27,10 +27,21 @@
     </div>
 
     <script>
-        let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
-        let waktu = 60;
-        document.getElementById('koin-display').innerText = koin;
+    let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
+    let waktu = 60;
+    let timerStarted = false;
+    document.getElementById('koin-display').innerText = koin;
 
+    // Fungsi ini mendeteksi aktivitas di area video
+    window.addEventListener('blur', function() {
+        // Jika pengguna mengklik iframe (video), timer mulai jalan
+        if (!timerStarted) {
+            mulaiTimer();
+            timerStarted = true;
+        }
+    });
+
+    function mulaiTimer() {
         const timer = setInterval(() => {
             waktu--;
             document.getElementById('seconds').innerText = waktu;
@@ -40,13 +51,14 @@
                 document.getElementById('timer-text').innerText = "Selesai! Silakan Klaim";
             }
         }, 1000);
+    }
 
-        function tambahKoin() {
-            koin += 10;
-            localStorage.setItem('koin', koin);
-            alert("Selamat! 10 Koin berhasil masuk.");
-            location.reload(); // Reset untuk video selanjutnya
-        }
+    function tambahKoin() {
+        koin += 10;
+        localStorage.setItem('koin', koin);
+        alert("Selamat! 10 Koin berhasil masuk.");
+        location.reload();
+    }
     </script>
 </body>
 </html>
