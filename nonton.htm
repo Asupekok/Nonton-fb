@@ -5,11 +5,12 @@
     <style>
         body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 10px; }
         .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 15px; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 15px; border-radius: 8px; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        button { background: #1877f2; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; width: 100%; }
+        button { background: #ff0000; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; width: 100%; font-size: 16px; }
         button:disabled { background: #ccc; }
-        #koin-display { font-size: 24px; color: #1877f2; font-weight: bold; }
+        #koin-display { font-size: 24px; color: #ff0000; font-weight: bold; }
+        .info { margin-top: 10px; font-size: 14px; color: #555; }
     </style>
 </head>
 <body>
@@ -17,13 +18,12 @@
         <div>Koin Saya: <span id="koin-display">0</span></div>
         <hr>
         <div class="video-wrapper">
-            <iframe src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Ffacebook%2Fvideos%2F10153231339611729%2F&show_text=0" 
-    allowfullscreen="true" 
-    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-            </iframe>
+            <iframe id="yt-player" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0" 
+                allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
         <p id="timer-text">Tonton: <span id="seconds">60</span> detik</p>
         <button id="btn-klaim" disabled onclick="tambahKoin()">Klaim 10 Koin</button>
+        <p class="info">Video harus diputar agar koin bertambah</p>
     </div>
 
     <script>
@@ -37,15 +37,15 @@
             if (waktu <= 0) {
                 clearInterval(timer);
                 document.getElementById('btn-klaim').disabled = false;
-                document.getElementById('timer-text').innerText = "Selesai!";
+                document.getElementById('timer-text').innerText = "Selesai! Silakan Klaim";
             }
         }, 1000);
 
         function tambahKoin() {
             koin += 10;
             localStorage.setItem('koin', koin);
-            alert("Koin didapat!");
-            location.reload();
+            alert("Selamat! 10 Koin berhasil masuk.");
+            location.reload(); // Reset untuk video selanjutnya
         }
     </script>
 </body>
