@@ -5,60 +5,83 @@
     <style>
         body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 10px; }
         .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 15px; border-radius: 8px; background: #000; }
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 15px; border-radius: 8px; background: #000; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         button { background: #ff0000; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; width: 100%; font-size: 16px; }
         button:disabled { background: #ccc; }
         #koin-display { font-size: 24px; color: #ff0000; font-weight: bold; }
-        .info { margin-top: 10px; font-size: 14px; color: #555; }
+        #status-teks { font-weight: bold; color: #555; }
     </style>
 </head>
 <body>
     <div class="card">
         <div>Koin Saya: <span id="koin-display">0</span></div>
         <hr>
-        <div class="video-wrapper">
-            <iframe id="yt-player" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0" 
-                allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <div class="video-container">
+            <div id="player"></div>
         </div>
+        <p id="status-teks">Video Belum Diputar</p>
         <p id="timer-text">Tonton: <span id="seconds">60</span> detik</p>
         <button id="btn-klaim" disabled onclick="tambahKoin()">Klaim 10 Koin</button>
-        <p class="info">Video harus diputar agar koin bertambah</p>
     </div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
-    let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
-    let waktu = 60;
-    let timerStarted = false;
-    document.getElementById('koin-display').innerText = koin;
+        let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
+        let waktu = 60;
+        let player;
+        let interval;
+        document.getElementById('koin-display').innerText = koin;
 
-    // Fungsi ini mendeteksi aktivitas di area video
-    window.addEventListener('blur', function() {
-        // Jika pengguna mengklik iframe (video), timer mulai jalan
-        if (!timerStarted) {
-            mulaiTimer();
-            timerStarted = true;
+        // Fungsi membuat player YouTube
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '360',
+                width: '640',
+                videoId: 'dQw4w9WgXcQ', // GANTI ID VIDEO DISINI
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
         }
-    });
 
-    function mulaiTimer() {
-        const timer = setInterval(() => {
-            waktu--;
-            document.getElementById('seconds').innerText = waktu;
-            if (waktu <= 0) {
-                clearInterval(timer);
-                document.getElementById('btn-klaim').disabled = false;
-                document.getElementById('timer-text').innerText = "Selesai! Silakan Klaim";
+        // Fungsi mendeteksi status video (Play/Pause)
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                document.getElementById('status-teks').innerText = "Video Sedang Diputar...";
+                mulaiTimer();
+            } else {
+                document.getElementById('status-teks').innerText = "Video Berhenti (Timer Pause)";
+                stopTimer();
             }
-        }, 1000);
-    }
+        }
 
-    function tambahKoin() {
-        koin += 10;
-        localStorage.setItem('koin', koin);
-        alert("Selamat! 10 Koin berhasil masuk.");
-        location.reload();
-    }
+        function mulaiTimer() {
+            if (!interval) {
+                interval = setInterval(() => {
+                    waktu--;
+                    document.getElementById('seconds').innerText = waktu;
+                    if (waktu <= 0) {
+                        stopTimer();
+                        document.getElementById('btn-klaim').disabled = false;
+                        document.getElementById('timer-text').innerText = "Selesai! Silakan Klaim";
+                    }
+                }, 1000);
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(interval);
+            interval = null;
+        }
+
+        function tambahKoin() {
+            koin += 10;
+            localStorage.setItem('koin', koin);
+            alert("Selamat! 10 Koin berhasil masuk.");
+            location.reload();
+        }
     </script>
 </body>
 </html>
