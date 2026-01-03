@@ -1,57 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>FB View Exchange</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #video-container { margin-bottom: 20px; background: #000; height: 300px; display: flex; align-items: center; justify-content: center; color: white; }
-        button { background: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 10px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-bottom: 15px; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        button { background: #1877f2; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; width: 100%; }
         button:disabled { background: #ccc; }
         #koin-display { font-size: 24px; color: #1877f2; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="card">
-        <h2>Koin Saya: <span id="koin-display">0</span></h2>
-        <div id="video-container">
-            <iframe src="https://www.facebook.com/share/r/17sq9nSkDT/" 
-                width="100%" height="300" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true"></iframe>
+        <div>Koin Saya: <span id="koin-display">0</span></div>
+        <hr>
+        <div class="video-wrapper">
+            <iframe src="https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/workplace/videos/244302636257790/&show_text=0" 
+                allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
         </div>
-        
-        <p id="timer-text">Tonton video selama: <span id="seconds">60</span> detik</p>
+        <p id="timer-text">Tonton: <span id="seconds">60</span> detik</p>
         <button id="btn-klaim" disabled onclick="tambahKoin()">Klaim 10 Koin</button>
     </div>
 
     <script>
         let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
         let waktu = 60;
-        const displayKoin = document.getElementById('koin-display');
-        const displayTimer = document.getElementById('seconds');
-        const btnKlaim = document.getElementById('btn-klaim');
+        document.getElementById('koin-display').innerText = koin;
 
-        displayKoin.innerText = koin;
-
-        // Jalankan Timer Otomatis
-        const hitungMundur = setInterval(() => {
+        const timer = setInterval(() => {
             waktu--;
-            displayTimer.innerText = waktu;
-
+            document.getElementById('seconds').innerText = waktu;
             if (waktu <= 0) {
-                clearInterval(hitungMundur);
-                btnKlaim.disabled = false;
-                document.getElementById('timer-text').innerText = "Video Selesai!";
+                clearInterval(timer);
+                document.getElementById('btn-klaim').disabled = false;
+                document.getElementById('timer-text').innerText = "Selesai!";
             }
         }, 1000);
 
         function tambahKoin() {
             koin += 10;
-            localStorage.setItem('koin', koin); // Simpan di memori HP
-            displayKoin.innerText = koin;
-            btnKlaim.disabled = true;
-            alert("Selamat! Koin bertambah.");
-            location.reload(); // Ambil video baru (refresh)
+            localStorage.setItem('koin', koin);
+            alert("Koin didapat!");
+            location.reload();
         }
     </script>
 </body>
