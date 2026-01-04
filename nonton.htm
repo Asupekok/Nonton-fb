@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -34,16 +35,27 @@
         #status-area { background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
         #btn-kampanye { background: #FE2C55; color: white; margin-top: 20px; }
         .success-anim { color: #25d366; font-weight: bold; display: none; }
+        .login-section { margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; }
+        #user-info { font-size: 14px; color: #666; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="card">
+        <div class="login-section">
+            <div id="g_id_onload"
+                 data-client_id="MASUKKAN_CLIENT_ID_ANDA_DI_SINI.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div class="g_id_signin" data-type="standard"></div>
+            
+            <div id="user-info">Masuk sebagai: <b id="user-name"></b></div>
+        </div>
+
         <div>Koin Saya: <span id="koin-display">0</span></div>
         <hr style="border: 0.5px solid #eee;">
         
-        <div class="video-container" id="container-tiktok">
-            </div>
+        <div class="video-container" id="container-tiktok"></div>
 
         <div id="status-area">
             <p id="timer-text" style="margin: 5px 0;">Status: <b>Menunggu...</b></p>
@@ -52,71 +64,81 @@
         </div>
 
         <button id="btn-start" onclick="mulaiTonton()">▶ MULAI NONTON</button>
-
         <button id="btn-kampanye" onclick="bukaKampanye()">🚀 BUAT KAMPANYE VIDEO</button>
     </div>
 
     <script async src="https://www.tiktok.com/embed.js"></script>
 
     <script>
-        // DAFTAR VIDEO TIKTOK (Masukkan ID Video di sini)
-        const daftarVideo = [
-            "7434524419266399493", 
-            "7430154884211936517",
-            "7428318465063521541"
-        ];
-
+        const daftarVideo = ["7434524419266399493", "7430154884211936517", "7428318465063521541"];
         let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
-        let waktu = 60; // Durasi tonton dalam detik
-        let interval;
 
+        // Inisialisasi awal
         window.onload = function() {
+            // Bonus 100 koin jika pengguna baru
+            if (localStorage.getItem('isNewUser') === null) {
+                koin = 100;
+                localStorage.setItem('koin', koin);
+                localStorage.setItem('isNewUser', 'false');
+            }
             document.getElementById('koin-display').innerText = koin;
+            
+            // Cek jika sudah login sebelumnya
+            const savedName = localStorage.getItem('userName');
+            if (savedName) {
+                showUserInfo(savedName);
+            }
+            loadVideo();
+        };
+
+        // Fungsi setelah Login Google berhasil
+        function handleCredentialResponse(response) {
+            // Decode JWT token untuk ambil nama (sederhana)
+            const responsePayload = JSON.parse(atob(response.credential.split('.')[1]));
+            const name = responsePayload.name;
+            
+            localStorage.setItem('userName', name);
+            showUserInfo(name);
+        }
+
+        function showUserInfo(name) {
+            document.querySelector('.g_id_signin').style.display = 'none';
+            document.getElementById('user-info').style.display = 'block';
+            document.getElementById('user-name').innerText = name;
+        }
+
+        function loadVideo() {
             const videoAcak = daftarVideo[Math.floor(Math.random() * daftarVideo.length)];
             const container = document.getElementById('container-tiktok');
-            
-            container.innerHTML = `
-                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${videoAcak}" data-video-id="${videoAcak}">
-                    <section></section>
-                </blockquote>
-            `;
+            container.innerHTML = `<blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${videoAcak}" data-video-id="${videoAcak}"><section></section></blockquote>`;
             if (window.TiktokSDK) { window.TiktokSDK.load(); }
-        };
+        }
+
+        let waktu = 60;
+        let interval;
 
         function mulaiTonton() {
             document.getElementById('btn-start').disabled = true;
             document.getElementById('btn-start').innerText = "Video Sedang Diputar...";
             document.getElementById('timer-text').innerHTML = "Status: <b>Menonton...</b>";
             
-            if (!interval) {
-                interval = setInterval(() => {
-                    waktu--;
-                    document.getElementById('seconds').innerText = waktu;
-                    
-                    if (waktu <= 0) {
-                        clearInterval(interval);
-                        klaimOtomatis();
-                    }
-                }, 1000);
-            }
+            interval = setInterval(() => {
+                waktu--;
+                document.getElementById('seconds').innerText = waktu;
+                if (waktu <= 0) {
+                    clearInterval(interval);
+                    klaimOtomatis();
+                }
+            }, 1000);
         }
 
         function klaimOtomatis() {
-            // Logika Tambah Koin Otomatis
             koin += 10;
             localStorage.setItem('koin', koin);
             document.getElementById('koin-display').innerText = koin;
-            
-            // Efek Visual
             document.getElementById('msg-otomatis').style.display = 'block';
             document.getElementById('timer-text').innerHTML = "Status: <b style='color:#25d366'>Sukses!</b>";
-            document.getElementById('btn-start').innerText = "Selesai!";
-            
-            // Refresh otomatis setelah 2 detik untuk ganti video baru
-            setTimeout(() => {
-                alert("Selamat! 10 Koin masuk otomatis. Lanjut ke video berikutnya?");
-                location.reload();
-            }, 2000);
+            setTimeout(() => { location.reload(); }, 2000);
         }
 
         function bukaKampanye() {
@@ -128,4 +150,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
