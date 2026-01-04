@@ -3,59 +3,128 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 20px; color: white; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); color: #333; max-width: 400px; margin: auto; }
-        .video-container { width: 100%; border-radius: 15px; overflow: hidden; margin: 20px 0; background: #000; }
-        #koin-display { font-size: 32px; color: #764ba2; font-weight: bold; }
-        button { background: #764ba2; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 18px; cursor: pointer; }
-        button:disabled { background: #cbd5e0; cursor: not-allowed; }
-        .btn-start { background: #fe2c55; margin-bottom: 10px; } /* Warna Khas TikTok */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #010101;
+            background-image: url('https://www.edigitalagency.com.au/wp-content/uploads/tiktok-logo-icon-white-border-black-background-png.png');
+            background-size: 80px;
+            background-repeat: repeat;
+            margin: 0; padding: 20px; color: white;
+        }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: -1;
+        }
+        .card { 
+            background: white; padding: 25px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: #333;
+            max-width: 400px; margin: auto;
+        }
+        .video-container { 
+            width: 100%; margin: 15px 0; border-radius: 15px; 
+            background: #000; min-height: 450px; border: 3px solid #00f2ea;
+        }
+        #koin-display { font-size: 35px; color: #fe2c55; font-weight: bold; }
+        button { 
+            cursor: pointer; border: none; padding: 15px; border-radius: 12px; 
+            font-weight: bold; width: 100%; font-size: 18px; transition: 0.3s;
+        }
+        #btn-start { background: #010101; color: white; margin-bottom: 10px; border: 1px solid #fe2c55; }
+        #status-area { background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        #btn-kampanye { background: #FE2C55; color: white; margin-top: 20px; }
+        .success-anim { color: #25d366; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
+
     <div class="card">
-        <div>dompet koin: <span id="koin-display">0</span></div>
-        <hr>
+        <div>Koin Saya: <span id="koin-display">0</span></div>
+        <hr style="border: 0.5px solid #eee;">
         
-        <div class="video-container">
-            <blockquote class="tiktok-embed" id="tiktok-player" cite="https://www.tiktok.com/@khaby.lame/video/7100000000000000000">
-                <section></section>
-            </blockquote>
+        <div class="video-container" id="container-tiktok">
+            </div>
+
+        <div id="status-area">
+            <p id="timer-text" style="margin: 5px 0;">Status: <b>Menunggu...</b></p>
+            <p id="seconds-display" style="font-size: 20px; margin: 5px 0;">Sisa: <span id="seconds" style="color:#FE2C55">60</span> detik</p>
+            <div id="msg-otomatis" class="success-anim">✅ Koin Berhasil Diklaim!</div>
         </div>
 
-        <button class="btn-start" id="btn-start" onclick="mulaiTonton()">▶ Mulai Hitung Waktu</button>
-        <p id="timer-text">Tonton: <span id="seconds">60</span> detik</p>
-        <button id="btn-klaim" disabled onclick="tambahKoin()">Klaim 10 Koin</button>
+        <button id="btn-start" onclick="mulaiTonton()">▶ MULAI NONTON</button>
+
+        <button id="btn-kampanye" onclick="bukaKampanye()">🚀 BUAT KAMPANYE VIDEO</button>
     </div>
 
     <script async src="https://www.tiktok.com/embed.js"></script>
 
     <script>
+        // DAFTAR VIDEO TIKTOK (Masukkan ID Video di sini)
+        const daftarVideo = [
+            "7434524419266399493", 
+            "7430154884211936517",
+            "7428318465063521541"
+        ];
+
         let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
-        let waktu = 60;
+        let waktu = 60; // Durasi tonton dalam detik
         let interval;
-        document.getElementById('koin-display').innerText = koin;
+
+        window.onload = function() {
+            document.getElementById('koin-display').innerText = koin;
+            const videoAcak = daftarVideo[Math.floor(Math.random() * daftarVideo.length)];
+            const container = document.getElementById('container-tiktok');
+            
+            container.innerHTML = `
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${videoAcak}" data-video-id="${videoAcak}">
+                    <section></section>
+                </blockquote>
+            `;
+            if (window.TiktokSDK) { window.TiktokSDK.load(); }
+        };
 
         function mulaiTonton() {
-            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-start').innerText = "Video Sedang Diputar...";
+            document.getElementById('timer-text').innerHTML = "Status: <b>Menonton...</b>";
+            
             if (!interval) {
                 interval = setInterval(() => {
                     waktu--;
                     document.getElementById('seconds').innerText = waktu;
+                    
                     if (waktu <= 0) {
                         clearInterval(interval);
-                        document.getElementById('btn-klaim').disabled = false;
-                        document.getElementById('timer-text').innerText = "Selesai! Silakan Klaim";
+                        klaimOtomatis();
                     }
                 }, 1000);
             }
         }
 
-        function tambahKoin() {
+        function klaimOtomatis() {
+            // Logika Tambah Koin Otomatis
             koin += 10;
             localStorage.setItem('koin', koin);
-            alert("Selamat! 10 Koin berhasil masuk.");
-            location.reload();
+            document.getElementById('koin-display').innerText = koin;
+            
+            // Efek Visual
+            document.getElementById('msg-otomatis').style.display = 'block';
+            document.getElementById('timer-text').innerHTML = "Status: <b style='color:#25d366'>Sukses!</b>";
+            document.getElementById('btn-start').innerText = "Selesai!";
+            
+            // Refresh otomatis setelah 2 detik untuk ganti video baru
+            setTimeout(() => {
+                alert("Selamat! 10 Koin masuk otomatis. Lanjut ke video berikutnya?");
+                location.reload();
+            }, 2000);
+        }
+
+        function bukaKampanye() {
+            if (koin < 100) {
+                alert("Koin kurang! Butuh 100 koin.");
+            } else {
+                window.location.href = "https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20buat%20kampanye%20TikTok.";
+            }
         }
     </script>
 </body>
