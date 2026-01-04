@@ -3,108 +3,47 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-    body { 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        text-align: center; 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-        margin: 0; 
-        padding: 20px; 
-        color: white;
-    }
-    .card { 
-        background: white; 
-        padding: 25px; 
-        border-radius: 20px; 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-        color: #333;
-    }
-    .video-container { 
-        position: relative; 
-        padding-bottom: 56.25%; 
-        height: 0; 
-        overflow: hidden; 
-        margin: 20px 0; 
-        border-radius: 15px; 
-        background: #000; 
-        border: 3px solid #eee;
-    }
-    #koin-display { 
-        font-size: 32px; 
-        color: #764ba2; 
-        font-weight: bold; 
-    }
-    button { 
-        background: #764ba2; 
-        color: white; 
-        border: none; 
-        padding: 15px; 
-        border-radius: 10px; 
-        font-weight: bold; 
-        width: 100%; 
-        font-size: 18px;
-        transition: 0.3s;
-    }
-    button:disabled { background: #cbd5e0; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 20px; color: white; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); color: #333; max-width: 400px; margin: auto; }
+        .video-container { width: 100%; border-radius: 15px; overflow: hidden; margin: 20px 0; background: #000; }
+        #koin-display { font-size: 32px; color: #764ba2; font-weight: bold; }
+        button { background: #764ba2; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 18px; cursor: pointer; }
+        button:disabled { background: #cbd5e0; cursor: not-allowed; }
+        .btn-start { background: #fe2c55; margin-bottom: 10px; } /* Warna Khas TikTok */
     </style>
 </head>
 <body>
     <div class="card">
         <div>dompet koin: <span id="koin-display">0</span></div>
         <hr>
+        
         <div class="video-container">
-            <div id="player"></div>
+            <blockquote class="tiktok-embed" id="tiktok-player" cite="https://www.tiktok.com/@khaby.lame/video/7100000000000000000">
+                <section></section>
+            </blockquote>
         </div>
-        <p id="status-teks">Video Belum Diputar</p>
+
+        <button class="btn-start" id="btn-start" onclick="mulaiTonton()">▶ Mulai Hitung Waktu</button>
         <p id="timer-text">Tonton: <span id="seconds">60</span> detik</p>
         <button id="btn-klaim" disabled onclick="tambahKoin()">Klaim 10 Koin</button>
     </div>
-<br><br>
-<button id="btn-kampanye" onclick="bukaKampanye()" style="background: #25d366; margin-top: 10px;">
-    🚀 Buat Kampanye Video Saya
-</button>
 
-<p style="font-size: 12px; color: #666; margin-top: 5px;">
-    Gunakan koin kamu untuk mempromosikan video sendiri!
-</p>
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <script async src="https://www.tiktok.com/embed.js"></script>
 
     <script>
         let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
         let waktu = 60;
-        let player;
         let interval;
         document.getElementById('koin-display').innerText = koin;
 
-        // Fungsi membuat player YouTube
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '360',
-                width: '640',
-                videoId: 'dQw4w9WgXcQ', // GANTI ID VIDEO DISINI
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        // Fungsi mendeteksi status video (Play/Pause)
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.PLAYING) {
-                document.getElementById('status-teks').innerText = "Video Sedang Diputar...";
-                mulaiTimer();
-            } else {
-                document.getElementById('status-teks').innerText = "Video Berhenti (Timer Pause)";
-                stopTimer();
-            }
-        }
-
-        function mulaiTimer() {
+        function mulaiTonton() {
+            document.getElementById('btn-start').style.display = 'none';
             if (!interval) {
                 interval = setInterval(() => {
                     waktu--;
                     document.getElementById('seconds').innerText = waktu;
                     if (waktu <= 0) {
-                        stopTimer();
+                        clearInterval(interval);
                         document.getElementById('btn-klaim').disabled = false;
                         document.getElementById('timer-text').innerText = "Selesai! Silakan Klaim";
                     }
@@ -112,27 +51,11 @@
             }
         }
 
-        function stopTimer() {
-            clearInterval(interval);
-            interval = null;
-        }
-
         function tambahKoin() {
             koin += 10;
             localStorage.setItem('koin', koin);
             alert("Selamat! 10 Koin berhasil masuk.");
             location.reload();
-        }
-        function bukaKampanye() {
-    let koinSekarang = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
-    
-    if (koinSekarang < 100) {
-        alert("Koin tidak cukup! Minimal 100 koin untuk membuat kampanye.");
-    } else {
-        // Ganti nomor di bawah dengan nomor WhatsApp kamu
-        let pesan = "Halo Admin, saya ingin buat kampanye. Koin saya: " + koinSekarang;
-        window.location.href = "https://wa.me/6281234567890?text=" + encodeURIComponent(pesan);
-    }
         }
     </script>
 </body>
