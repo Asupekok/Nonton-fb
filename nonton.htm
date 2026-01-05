@@ -73,9 +73,7 @@
         const daftarVideo = ["7434524419266399493", "7430154884211936517", "7428318465063521541"];
         let koin = localStorage.getItem('koin') ? parseInt(localStorage.getItem('koin')) : 0;
 
-        // Inisialisasi awal
         window.onload = function() {
-            // Bonus 100 koin jika pengguna baru
             if (localStorage.getItem('isNewUser') === null) {
                 koin = 100;
                 localStorage.setItem('koin', koin);
@@ -83,20 +81,14 @@
             }
             document.getElementById('koin-display').innerText = koin;
             
-            // Cek jika sudah login sebelumnya
             const savedName = localStorage.getItem('userName');
-            if (savedName) {
-                showUserInfo(savedName);
-            }
+            if (savedName) { showUserInfo(savedName); }
             loadVideo();
         };
 
-        // Fungsi setelah Login Google berhasil
         function handleCredentialResponse(response) {
-            // Decode JWT token untuk ambil nama (sederhana)
             const responsePayload = JSON.parse(atob(response.credential.split('.')[1]));
             const name = responsePayload.name;
-            
             localStorage.setItem('userName', name);
             showUserInfo(name);
         }
@@ -135,19 +127,4 @@
         function klaimOtomatis() {
             koin += 10;
             localStorage.setItem('koin', koin);
-            document.getElementById('koin-display').innerText = koin;
-            document.getElementById('msg-otomatis').style.display = 'block';
-            document.getElementById('timer-text').innerHTML = "Status: <b style='color:#25d366'>Sukses!</b>";
-            setTimeout(() => { location.reload(); }, 2000);
-        }
-
-        function bukaKampanye() {
-            if (koin < 100) {
-                alert("Koin kurang! Butuh 100 koin.");
-            } else {
-                window.location.href = "https://wa.me/6282299855135?text=Halo%20Admin,%20saya%20mau%20buat%20kampanye%20TikTok.";
-            }
-        }
-    </script>
-</body>
-    </html>
+            document.getElementById('
